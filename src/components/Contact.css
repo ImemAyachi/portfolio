@@ -1,0 +1,426 @@
+.ct {
+  position: relative;
+  z-index: 4;
+  background: #1b1b1d;
+  color: var(--cream);
+  padding: clamp(70px, 13vh, 160px) clamp(16px, 3vw, 48px)
+    clamp(28px, 5vh, 56px);
+  box-shadow: 0 -34px 70px rgba(27, 27, 29, 0.25);
+  overflow: hidden;
+}
+
+.ct__inner {
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+/* ---------- Top row ---------- */
+
+.ct__top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.85vw, 14px);
+  letter-spacing: 0.16em;
+}
+
+/* Availability reads as a typeset line rather than a status light: the
+   brand sparkle, the label, a rule, and the year. */
+.ct__status {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(10px, 1.2vw, 18px);
+  text-transform: uppercase;
+}
+
+.ct__status-mark {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  fill: var(--accent-soft);
+  animation: ctSpin 9s linear infinite;
+}
+
+@keyframes ctSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ct__status-text {
+  color: rgba(247, 243, 233, 0.82);
+}
+
+.ct__status-rule {
+  width: clamp(28px, 5vw, 78px);
+  height: 1px;
+  background: rgba(247, 243, 233, 0.22);
+}
+
+.ct__status-year {
+  color: rgba(247, 243, 233, 0.42);
+}
+
+/* ---------- Headline ---------- */
+
+.ct__title {
+  margin: clamp(18px, 3vh, 40px) 0 0;
+  font-family: 'Anton', 'Archivo Black', Arial, sans-serif;
+  font-weight: 400;
+  font-size: clamp(42px, 8vw, 150px);
+  line-height: 0.88;
+  letter-spacing: 0.003em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.ct__line {
+  display: block;
+  overflow: hidden;
+}
+
+.ct__line span {
+  display: block;
+  transform: translateY(105%);
+  animation: ctRise 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ct__line:nth-child(2) span {
+  animation-delay: 110ms;
+}
+
+@keyframes ctRise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Magnetic email button ---------- */
+
+.ct__action {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 32px);
+  margin-top: clamp(28px, 5vh, 64px);
+  flex-wrap: wrap;
+}
+
+.ct__button {
+  position: relative;
+  padding: clamp(14px, 1.8vh, 22px) clamp(22px, 2.6vw, 44px);
+  border: 1px solid rgba(247, 243, 233, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cream);
+  font-family: var(--mono);
+  font-size: clamp(13px, 1.05vw, 19px);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  overflow: hidden;
+  /* The lean itself comes from lib/magnetic, which writes the transform and
+     eases it in JS — a CSS transition on top would smooth it twice and leave
+     the button trailing the pointer. */
+  transition: border-color 0.35s ease, color 0.35s ease;
+}
+
+/* Fill sweeps up from the bottom as the pointer closes in. */
+.ct__button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--cream);
+  transform: translateY(101%);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ct__button.is-near {
+  border-color: var(--cream);
+}
+
+.ct__button.is-near::before {
+  transform: translateY(0);
+}
+
+.ct__button.is-near {
+  color: #1b1b1d;
+}
+
+.ct__button-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.ct__hint {
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.8vw, 13px);
+  letter-spacing: 0.14em;
+  color: rgba(247, 243, 233, 0.45);
+  transition: color 0.3s ease;
+}
+
+/* ---------- Copy confirmation ---------- */
+
+/* Lands on the address like a rubber stamp: oversized and soft, then driven
+   down onto the page. Sits outside the button because the button clips its
+   own overflow for the fill sweep. */
+.ct__stamp {
+  position: absolute;
+  top: 50%;
+  left: clamp(18px, 2.2vw, 40px);
+  z-index: 2;
+  padding: 5px 12px;
+  border: 2px solid var(--accent-soft);
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.9vw, 15px);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  background: rgba(27, 27, 29, 0.72);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-50%) rotate(-9deg);
+  transition: opacity 0.4s ease 0.25s;
+}
+
+.ct__stamp.is-on {
+  animation: ctStamp 0.46s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+@keyframes ctStamp {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(-9deg) scale(2.2);
+    filter: blur(3px);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-9deg) scale(0.93);
+    filter: blur(0);
+  }
+  74% {
+    transform: translateY(-50%) rotate(-9deg) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-9deg) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ---------- Type-anywhere note ---------- */
+
+.ct__note {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(12px, 1.6vw, 26px);
+  flex-wrap: wrap;
+  min-height: 2.6em;
+  margin-top: clamp(18px, 3vh, 34px);
+  font-family: var(--mono);
+  font-size: clamp(12px, 1vw, 16px);
+  letter-spacing: 0.08em;
+}
+
+/* A real field dressed as a line of copy: no chrome until it holds something,
+   and the browser's own caret rather than a drawn one — which is also what
+   lets composed characters, paste and mobile keyboards work at all. */
+.ct__note-input {
+  flex: 1 1 26ch;
+  max-width: 62ch;
+  padding: 0 0 6px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--cream);
+  caret-color: var(--accent-soft);
+  transition: border-color 0.3s ease;
+}
+
+.ct__note-input::placeholder {
+  color: rgba(247, 243, 233, 0.4);
+}
+
+.ct__note-input:focus {
+  outline: none;
+  border-bottom-color: rgba(247, 243, 233, 0.3);
+}
+
+.ct__note.is-live .ct__note-input {
+  border-bottom-color: rgba(247, 243, 233, 0.3);
+}
+
+/* Only worth offering once there is something to send. */
+.ct__note-send {
+  flex: none;
+  padding: 0;
+  background: none;
+  border: 0;
+  font-family: var(--mono);
+  font-size: 0.8em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(3px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
+}
+
+.ct__note.is-live .ct__note-send {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct__stamp.is-on {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ---------- Footer rows ---------- */
+
+.ct__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: clamp(46px, 9vh, 120px);
+  padding-bottom: clamp(16px, 3vh, 32px);
+  border-bottom: 1px solid rgba(247, 243, 233, 0.14);
+}
+
+.ct__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(16px, 2.4vw, 44px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Two stacked copies; hover slides one out and the other in. */
+.ct__socials a {
+  position: relative;
+  display: block;
+  height: 1.25em;
+  overflow: hidden;
+  color: var(--cream);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: clamp(12px, 0.95vw, 16px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ct__socials a span {
+  display: block;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ct__socials a span:last-child {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(100%);
+  /* Cream, not rust: the cursor lays a difference-blended block over the link
+     at the same moment this rolls up, and the inverse of rust is a teal that
+     belongs to no part of this palette. Cream inverts to near-black. */
+  color: var(--cream);
+}
+
+.ct__socials a:hover span:first-child {
+  transform: translateY(-100%);
+}
+
+.ct__socials a:hover span:last-child {
+  transform: translateY(0);
+}
+
+.ct__clock {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: clamp(12px, 0.95vw, 16px);
+  letter-spacing: 0.14em;
+}
+
+.ct__clock i {
+  font-style: normal;
+  text-transform: uppercase;
+  color: rgba(247, 243, 233, 0.45);
+}
+
+.ct__clock b {
+  font-weight: 400;
+  /* Digits shouldn't jitter as the seconds tick. */
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
+}
+
+/* What that hour actually means, so the clock reads as a person rather than
+   a counter. */
+.ct__clock em {
+  font-style: normal;
+  font-size: 0.86em;
+  letter-spacing: 0.1em;
+  /* Cream, held just under full strength so the digits stay the brightest
+     thing on the line and the phrase reads as an aside to them. */
+  color: rgba(247, 243, 233, 0.75);
+}
+
+.ct__clock em::before {
+  content: '— ';
+  color: rgba(247, 243, 233, 0.3);
+}
+
+.ct__legal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: clamp(14px, 2.4vh, 26px);
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.78vw, 13px);
+  letter-spacing: 0.12em;
+  color: rgba(247, 243, 233, 0.4);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .ct__foot {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct__line span {
+    transform: none;
+    animation: none;
+  }
+
+  .ct__button {
+    transform: none;
+  }
+
+  .ct__dot {
+    animation: none;
+  }
+}

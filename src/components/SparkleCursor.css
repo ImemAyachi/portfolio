@@ -1,0 +1,239 @@
+.spk {
+  position: fixed;
+  inset: 0;
+  /* Above the nav (100). It has to be: the leader inverts what it covers by
+     blending with the backdrop, and anything painted after it is not part of
+     that backdrop. Underneath the nav, wrapping a nav link inverted the
+     section behind the bar and left the link's own text untouched — cream
+     lettering on a cream block. */
+  z-index: 102;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  /* Difference blending inverts against whatever is underneath, so the
+     sparkles stay legible over cream, grey and the dark project cards
+     alike — no per-section colour switching needed. */
+  mix-blend-mode: difference;
+}
+
+.spk.is-awake {
+  opacity: 1;
+}
+
+.spk__lead,
+.spk__item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
+.spk__item svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.spk__item path {
+  fill: #ffffff;
+}
+
+/* ---------- Leader ---------- */
+
+/* A fixed box big enough for any link it might wrap; the clip does all the
+   shaping, so the box never resizes mid-morph and can never crop the shape
+   against its own edge. Its position is rewritten every frame to follow the
+   pointer, which is why nothing here transitions the transform. */
+.spk__lead {
+  width: 460px;
+  height: 120px;
+  margin: -60px 0 0 -230px;
+  transform: translate3d(var(--lx, -100px), var(--ly, -100px), 0);
+  transition: opacity 0.22s ease;
+}
+
+.spk__lead-fill {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  clip-path: var(--clip-star);
+  transition: clip-path 0.4s cubic-bezier(0.22, 1, 0.3, 1);
+}
+
+/* Unfolded into the link's own footprint. Difference blending does the rest:
+   a white block over the link inverts it, whatever colours it happened to
+   have. */
+.spk.is-wrapping .spk__lead-fill {
+  clip-path: var(--clip-wrap, var(--clip-star));
+}
+
+/* The projects grid swaps in its own cursor — suppress the whole sparkle
+   layer there, leader and trail alike, so nothing competes with it.
+   Outranks .spk.is-awake on specificity (0,2,1 vs 0,2,0). */
+body.has-custom-cursor .spk {
+  opacity: 0;
+}
+
+/* Behind an overlay it's occluded anyway, and a full-screen difference-blend
+   layer is expensive to composite over an animating clip. Take it out of the
+   picture entirely rather than just hiding it. */
+body.is-locked .spk {
+  display: none;
+}
+
+/* Collapses to nothing as the label opens out of it. */
+.spk.is-labelled .spk__lead {
+  opacity: 0;
+}
+
+/* ---------- Trail ---------- */
+
+.spk__item {
+  --size: 20px;
+
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  transform: translate3d(var(--x, -100px), var(--y, -100px), 0);
+}
+
+.spk__item svg {
+  opacity: 0;
+}
+
+.spk__item.is-on svg {
+  animation: spkBloom 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Blooms open, drifts up and away, then closes to nothing. */
+@keyframes spkBloom {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0) rotate(0deg);
+  }
+  22% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.28), calc(var(--dy) * 0.28))
+      scale(var(--s)) rotate(calc(var(--r) * 0.4));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0) rotate(var(--r));
+  }
+}
+
+/* ---------- Contextual label ---------- */
+
+/* The sparkle becomes this.
+   Collapsed it is a circle of exactly the sparkle's size, sitting on exactly
+   the sparkle's point — so as the sparkle fades, what remains is a dot the
+   reader reads as the same object. It then widens into a pill, uncovering the
+   text that was clipped inside it all along. Widening the real box rather
+   than scaling a transform is what keeps the caps circular and the text
+   unstretched throughout.
+
+   Its own layer, unblended, so the ink stays legible over every section. */
+.spk-label {
+  --cap: 15px;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* Above the nav (100) and above the sparkle layer, so the label always
+     reads over whatever it is describing. */
+  z-index: 103;
+  pointer-events: none;
+  box-sizing: border-box;
+  width: var(--label-w, 120px);
+  height: calc(var(--cap) * 2);
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--mono);
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* Anchors the left cap's centre — and so the closed sparkle's centre — on
+     the leader's own point. */
+  transform: translate3d(var(--lx, -200px), var(--ly, -200px), 0)
+    translate(calc(var(--cap) * -1), calc(var(--cap) * -1));
+  /* The box stays the full pill; the clip is what changes shape. No
+     border-radius: the polygon draws the caps itself, and rounding the box
+     as well would clip the star's tips while it is closed. */
+  clip-path: var(--clip-seed);
+  opacity: 0;
+  /* Closing: the pill draws back into the star, then the star fades. */
+  transition: clip-path 0.32s cubic-bezier(0.55, 0, 0.35, 1),
+    opacity 0.16s ease 0.16s;
+}
+
+.spk-label.is-on {
+  clip-path: var(--clip-pill, var(--clip-seed));
+  opacity: 1;
+  /* Opening: the star appears first, then unfolds into the pill. */
+  transition: opacity 0.13s ease,
+    clip-path 0.46s cubic-bezier(0.22, 1, 0.3, 1) 0.07s;
+}
+
+/* Near the right edge it opens the other way, so the words are never cut off
+   by the viewport. The box is hung from its right cap instead of its left,
+   and the closed star moves to that cap so the morph still starts on the
+   sparkle. */
+.spk-label.is-flipped {
+  transform: translate3d(var(--lx, -200px), var(--ly, -200px), 0)
+    translate(calc(var(--cap) - var(--label-w, 120px)), calc(var(--cap) * -1));
+  clip-path: var(--clip-seed-end, var(--clip-seed));
+}
+
+.spk-label.is-flipped.is-on {
+  clip-path: var(--clip-pill, var(--clip-seed));
+}
+
+.spk-label__text {
+  position: absolute;
+  top: 50%;
+  left: var(--cap);
+  transform: translateY(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+.spk-label.is-on .spk-label__text {
+  opacity: 1;
+  transition-delay: 0.16s;
+}
+
+/* Same suppressions as the sparkle layer: the projects grid brings its own
+   cursor, and behind an overlay this is occluded anyway. */
+body.has-custom-cursor .spk-label,
+body.is-locked .spk-label {
+  display: none;
+}
+
+/* No pointer, no cursor effects. */
+@media (pointer: coarse) {
+  .spk-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spk-label {
+    display: none;
+  }
+}
+
+/* No pointer, no cursor effects. */
+@media (pointer: coarse) {
+  .spk {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spk {
+    display: none;
+  }
+}

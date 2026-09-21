@@ -1,0 +1,387 @@
+.hero {
+  --cover: 0;
+
+  /* Pinned to the top so the next section rides up and covers it, rather
+     than the hero scrolling away. Its own children are absolutely placed
+     against this box, so the height stays definite. */
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  height: 100svh;
+  flex: none;
+  background: var(--gray);
+  color: var(--cream);
+  overflow: hidden;
+}
+
+/* Recedes as the section above it slides over — sells the depth of the
+   overlap without transforming the sticky element itself. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: #3d3d3d;
+  opacity: calc(var(--cover) * 0.34);
+}
+
+/* Soft light falloff behind the subject — decorative only. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 30%,
+    rgba(255, 255, 255, 0.09),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* The bar lives in SiteNav now — it has to stay above every section. */
+
+/* ---------- Giant name ----------
+   Both words share one baseline. They're absolutely placed against the
+   left and right edges (rather than laid out in flow) because each is
+   horizontally compressed with scaleX — a transform doesn't shrink the
+   layout box, so flow positioning would overflow wildly. */
+
+.hero__name {
+  position: absolute;
+  top: 14%;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 1;
+  margin: 0;
+  pointer-events: none;
+  font-family: 'Anton', 'Archivo Black', Arial, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--cream);
+}
+
+.hero__name-word {
+  position: absolute;
+  top: 0;
+  white-space: nowrap;
+  font-size: 51vh;
+  letter-spacing: 0.03em;
+}
+
+/* The scaleX for each word is measured and set at runtime (see Name in
+   Hero.jsx) so both render to one shared width — that's what keeps the
+   middle gap centred while the bleed off each edge stays equal. */
+.hero__name-word--left {
+  left: -0.9vw;
+  transform-origin: left top;
+}
+
+.hero__name-word--right {
+  right: -0.9vw;
+  transform-origin: right top;
+}
+
+/* ---------- Subject ---------- */
+
+/* Wrapper takes the positioning the photo used to own, so the illustrated
+   layer can sit exactly on top of it. */
+.hero__figure {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  height: 91%;
+}
+
+.hero__photo {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+/* Filter host. It sits between the figure and the masked image so the
+   displacement is applied to the already-masked result, warping the edge
+   of the reveal rather than just the picture inside it. */
+.hero__ink-warp {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero__ink-warp.is-live {
+  filter: url(#hero-liquid);
+}
+
+/* Off-screen holder for the filter definition. */
+.hero__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Illustrated layer, shown only through the blob mask. Three soft circles
+   at lagging positions union together into one gooey shape — a single
+   circle would read as a hard spotlight rather than something liquid. */
+.hero__ink {
+  --x0: 50%;
+  --y0: 50%;
+  --r0: 0%;
+  --x1: 50%;
+  --y1: 50%;
+  --r1: 0%;
+  --x2: 50%;
+  --y2: 50%;
+  --r2: 0%;
+
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  -webkit-mask-image: radial-gradient(
+      circle at var(--x0) var(--y0),
+      #000 0,
+      #000 var(--r0),
+      transparent calc(var(--r0) * 2.1)
+    ),
+    radial-gradient(
+      circle at var(--x1) var(--y1),
+      #000 0,
+      #000 var(--r1),
+      transparent calc(var(--r1) * 2.1)
+    ),
+    radial-gradient(
+      circle at var(--x2) var(--y2),
+      #000 0,
+      #000 var(--r2),
+      transparent calc(var(--r2) * 2.1)
+    );
+  mask-image: radial-gradient(
+      circle at var(--x0) var(--y0),
+      #000 0,
+      #000 var(--r0),
+      transparent calc(var(--r0) * 2.1)
+    ),
+    radial-gradient(
+      circle at var(--x1) var(--y1),
+      #000 0,
+      #000 var(--r1),
+      transparent calc(var(--r1) * 2.1)
+    ),
+    radial-gradient(
+      circle at var(--x2) var(--y2),
+      #000 0,
+      #000 var(--r2),
+      transparent calc(var(--r2) * 2.1)
+    );
+}
+
+/* No pointer, no reveal — leave the photograph alone. */
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .hero__ink-warp {
+    display: none;
+  }
+}
+
+/* ---------- Signature ---------- */
+
+.hero__signature {
+  position: absolute;
+  right: 5.5%;
+  top: 61%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  transform: rotate(-6deg);
+  transform-origin: right center;
+  color: var(--cream);
+}
+
+.hero__signature-text {
+  font-family: 'Sallim', cursive;
+  font-size: clamp(46px, 8.4vh, 100px);
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+/* Right-aligned by the parent's flex-end, so keeping it short parks it
+   under the "Ayachi" half of the signature rather than spanning the lot. */
+.hero__signature-flourish {
+  width: clamp(70px, 8vw, 132px);
+  height: clamp(8px, 1.2vh, 15px);
+  margin-top: 0.02em;
+  margin-right: 0.06em;
+  opacity: 0.9;
+}
+
+/* ---------- Tagline ---------- */
+
+.hero__meta {
+  position: absolute;
+  left: clamp(12px, 1.5vw, 24px);
+  top: 67.5%;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  /* Whole block in rust — the rule and copy inherit it. */
+  color: var(--accent);
+}
+
+.hero__meta-index {
+  /* Narrowed with scaleX rather than a lighter weight, so it stays bold
+     while the letterforms get tighter. */
+  display: inline-block;
+  transform: scaleX(0.78);
+  transform-origin: left center;
+  font-family: var(--sans);
+  font-size: clamp(30px, 4.2vh, 48px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.hero__meta-rule {
+  width: clamp(40px, 5vw, 74px);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.75;
+}
+
+.hero__meta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+}
+
+/* ---------- Socials ---------- */
+
+.hero__socials {
+  position: absolute;
+  left: clamp(12px, 1.5vw, 24px);
+  bottom: 2.4%;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+}
+
+.hero__socials a {
+  color: var(--cream);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.hero__socials a:hover {
+  opacity: 0.7;
+}
+
+.hero__socials-rule {
+  width: 34px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* ---------- Scroll ---------- */
+
+.hero__scroll {
+  position: absolute;
+  right: 1.8%;
+  bottom: 2.4%;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.hero__scroll-line {
+  position: relative;
+  width: 1px;
+  height: clamp(48px, 9vh, 86px);
+  background: currentColor;
+  opacity: 0.75;
+}
+
+.hero__scroll-line::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  border-left: 4.5px solid transparent;
+  border-right: 4.5px solid transparent;
+  border-top: 7px solid currentColor;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .hero__name {
+    top: 16%;
+  }
+
+  .hero__name-word {
+    font-size: 34vh;
+  }
+
+  /* The height lives on the wrapper now — the photo just fills it. */
+  .hero__figure {
+    height: 70%;
+  }
+
+  .hero__signature {
+    top: 52%;
+    right: 5%;
+  }
+
+  .hero__meta {
+    top: 63%;
+  }
+
+  .hero__scroll {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero__scroll-line {
+    width: 34px;
+    height: 1px;
+  }
+
+  .hero__scroll-line::after {
+    left: auto;
+    right: 0;
+    bottom: 50%;
+    transform: translateY(50%);
+    border-top: 4.5px solid transparent;
+    border-bottom: 4.5px solid transparent;
+    border-left: 7px solid currentColor;
+  }
+}

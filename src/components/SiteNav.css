@@ -1,0 +1,120 @@
+.site-nav {
+  /* One token drives every piece of the bar, so inverting over a light
+     section is a single override rather than a rule per element. */
+  --nav-fg: var(--cream);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  padding: 16px clamp(12px, 1.5vw, 24px) 14px;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.site-nav.is-visible {
+  opacity: 1;
+}
+
+.site-nav.is-on-light {
+  --nav-fg: var(--ink);
+}
+
+/* ---------- Logo ---------- */
+
+.site-nav__logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 0.86;
+}
+
+.site-nav__logo-line {
+  display: inline-block;
+  transform-origin: left center;
+  font-size: 30px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: left;
+  /* Ink by default: it reads on the cream sections and on the grey hero, both
+     of which are too pale for the cream the links switch to. It does not
+     follow --nav-fg for exactly that reason — the links go cream over the
+     hero on purpose, and the wordmark would be illegible there if it
+     followed. Only a genuinely dark backdrop flips it. */
+  color: var(--ink);
+  transition: color 0.35s ease;
+}
+
+.site-nav.is-on-deep .site-nav__logo-line {
+  color: var(--cream);
+}
+
+.site-nav__logo-line--top {
+  font-family: 'Amoria', 'Playfair Display', serif;
+  font-weight: 400;
+}
+
+.site-nav__logo-line--bottom {
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+}
+
+/* ---------- Links ---------- */
+
+.site-nav__links {
+  display: flex;
+  justify-content: center;
+  gap: clamp(20px, 4.2vw, 72px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transform: translateX(-6%);
+}
+
+.site-nav__links a {
+  display: inline-block;
+  color: var(--nav-fg);
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  /* Kept as hit area now that the rule beneath is gone. */
+  padding-bottom: 6px;
+  /* State is carried by weight of colour rather than a rule: the cursor lays
+     a difference-blended block over whatever it is on, and that inverts hue
+     as well as lightness — so anything that marks a link by changing its
+     colour comes back in a hue that belongs to no part of this palette.
+     Opacity only moves lightness, which inverts cleanly. */
+  opacity: 0.68;
+  transition: color 0.35s ease, opacity 0.25s ease;
+}
+
+.site-nav__links li.is-active a,
+.site-nav__links a:hover,
+.site-nav__links a:focus-visible {
+  opacity: 1;
+}
+
+.site-nav__contact {
+  justify-self: end;
+  color: var(--nav-fg);
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  transition: color 0.35s ease;
+}
+
+@media (max-width: 900px) {
+  .site-nav__links {
+    display: none;
+  }
+}

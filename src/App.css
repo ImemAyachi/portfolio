@@ -1,0 +1,21 @@
+.site {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.site--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* The hero's sticky containing block: it pins while the manifesto rides up
+   over it, then releases at the end of this wrapper instead of staying
+   pinned behind the rest of the page. No transform or overflow here — both
+   would break the sticky child. */
+.curtain {
+  position: relative;
+}

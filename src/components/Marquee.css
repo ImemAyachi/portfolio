@@ -1,0 +1,58 @@
+.mq {
+  --mq-h: clamp(46px, 6.4vh, 68px);
+
+  /* Sits between two sections and straddles the seam: the negative margins
+     pull half of it into each, so it costs the page no extra height. Being a
+     sibling of both keeps it clear of their `overflow: hidden`. */
+  position: relative;
+  z-index: 5;
+  height: var(--mq-h);
+  margin-top: calc(var(--mq-h) / -2);
+  margin-bottom: calc(var(--mq-h) / -2);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--cream);
+  border-top: 1px solid rgba(119, 119, 111, 0.18);
+  border-bottom: 1px solid rgba(119, 119, 111, 0.18);
+}
+
+/* Position is driven from JS (see Marquee.jsx) rather than a CSS animation:
+   the band reverses with the scroll direction, and reversing a keyframe
+   animation mid-cycle jumps rather than turning smoothly. */
+.mq__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.mq__group {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.mq__item {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(24px, 3vw, 52px);
+  padding-right: clamp(24px, 3vw, 52px);
+  font-family: var(--mono);
+  font-size: clamp(12px, 1vw, 16px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.mq__star {
+  color: var(--accent);
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+/* The JS loop bails out under reduced motion, leaving the band static. */
+@media (prefers-reduced-motion: reduce) {
+  .mq__track {
+    transform: none;
+  }
+}

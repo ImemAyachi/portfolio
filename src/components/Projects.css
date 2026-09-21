@@ -1,0 +1,1041 @@
+.pj {
+  --p: 0;
+  --panel: #1b1b1d;
+  --panel-2: #232326;
+  --line: rgba(247, 243, 233, 0.1);
+
+  position: relative;
+  z-index: 2;
+  background: var(--gray);
+  padding: clamp(46px, 7vh, 86px) clamp(16px, 3vw, 48px) clamp(60px, 9vh, 110px);
+  box-shadow: 0 -34px 70px rgba(61, 61, 61, 0.14);
+  /* clip, not hidden — `hidden` would make this a scroll container and the
+     stacked cards would stick to it instead of the viewport. */
+  overflow: clip;
+}
+
+/* ---------- Header ---------- */
+
+.pj__top,
+.pj__intro,
+.pj__grid {
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.pj__top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.85vw, 14px);
+  letter-spacing: 0.16em;
+  color: var(--ink);
+}
+
+.pj__all {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* Underline comes from the shared .link-underline utility now — the old
+   retracting rule here would have drawn a second one. */
+
+.pj__intro {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(20px, 3vw, 54px);
+  margin: clamp(6px, 1vh, 16px) 0 clamp(24px, 4vh, 46px);
+}
+
+.pj__title {
+  margin: 0;
+  font-family: 'Anton', 'Archivo Black', Arial, sans-serif;
+  font-weight: 400;
+  font-size: clamp(52px, 8.4vw, 148px);
+  line-height: 0.84;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.pj__lede {
+  max-width: 34ch;
+  margin: clamp(8px, 1.6vh, 22px) 0 0;
+  font-family: var(--mono);
+  font-size: clamp(12px, 0.95vw, 16px);
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+/* ---------- Grid ---------- */
+
+/* Cards stack rather than sit in a grid: each sticks a little lower than
+   the last, so the ones already read stay visible as a stepped pile while
+   the next slides up over them. The gap is the scroll budget between. */
+.pj__grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(30px, 7vh, 90px);
+  padding-bottom: clamp(40px, 10vh, 120px);
+}
+
+.pj__card {
+  --tx: 0;
+  --ty: 0;
+  --cover: 0;
+
+  position: sticky;
+  top: calc(clamp(74px, 12vh, 120px) + var(--i) * 15px);
+  display: flex;
+  min-height: clamp(280px, 62vh, 560px);
+  border-radius: 8px;
+  overflow: hidden;
+  opacity: 0;
+  /* Shrinks as the next card covers it — transform is shared with the hover
+     tilt, so --cover has to appear in both rules. */
+  transform: scale(calc(1 - var(--cover) * 0.07));
+  transform-origin: center top;
+  transition: opacity 0.9s ease;
+  transition-delay: calc(var(--i) * 110ms);
+}
+
+.pj.is-revealed .pj__card {
+  opacity: 1;
+}
+
+/* Hovering leans the card toward the pointer. */
+.pj.is-revealed .pj__card:hover {
+  transform: perspective(1000px) rotateY(calc(var(--tx) * 4deg))
+    rotateX(calc(var(--ty) * -4deg)) scale(calc(1 - var(--cover) * 0.07));
+  transition: transform 0.35s ease;
+}
+
+.pj__card--menute,
+.pj__card--api {
+  background: var(--panel);
+}
+
+.pj__card--ecom {
+  background: #b9b9b6;
+}
+
+.pj__card--mobile {
+  background: #9d9d99;
+}
+
+.pj__art {
+  flex: 1;
+  min-width: 0;
+  padding: clamp(8px, 1vw, 14px);
+  /* Drifts a touch against the scroll. */
+  transform: translateY(calc((var(--p) - 0.5) * -18px));
+}
+
+.pj__art--right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+/* ---------- Card captions ---------- */
+
+.pj__name {
+  margin: 0;
+  font-family: 'Anton', Arial, sans-serif;
+  font-weight: 400;
+  font-size: clamp(18px, 1.7vw, 30px);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.pj__name--dark {
+  color: var(--ink);
+}
+
+/* Invisible hit area covering the whole card, and the card's single
+   focusable element. It's a direct child of .pj__card so the card is its
+   containing block — nested inside a caption it would only have covered
+   that caption, since those are absolutely positioned themselves. */
+.pj__open {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.pj__open:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: -8px;
+}
+
+/* Cream disappears on the pale cards. */
+.pj__card--ecom .pj__open:focus-visible,
+.pj__card--mobile .pj__open:focus-visible {
+  outline-color: var(--ink);
+}
+
+.pj__desc {
+  margin: 6px 0 0;
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.78vw, 13px);
+  line-height: 1.6;
+  color: rgba(247, 243, 233, 0.72);
+}
+
+.pj__desc--dark {
+  color: var(--ink);
+  font-size: clamp(11px, 0.9vw, 15px);
+}
+
+.pj__meta--over {
+  position: absolute;
+  left: clamp(14px, 1.6vw, 26px);
+  bottom: clamp(12px, 1.6vh, 22px);
+  right: clamp(14px, 1.6vw, 26px);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pj__meta--row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pj__meta--left {
+  position: absolute;
+  left: clamp(14px, 1.8vw, 30px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  max-width: 42%;
+  pointer-events: none;
+}
+
+/* The cream slab that overlaps the Ecomeasy artwork. */
+.pj__meta--card {
+  position: absolute;
+  left: clamp(10px, 1.2vw, 20px);
+  right: clamp(10px, 1.2vw, 20px);
+  bottom: clamp(10px, 1.4vh, 20px);
+  z-index: 2;
+  padding: clamp(12px, 1.4vw, 22px) clamp(14px, 1.6vw, 26px);
+  background: var(--cream);
+  border-radius: 4px;
+  box-shadow: 0 14px 34px rgba(27, 27, 29, 0.18);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pj__card--ecom:hover .pj__meta--card {
+  transform: translateY(-5px);
+}
+
+.pj__stack {
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.78vw, 13px);
+  letter-spacing: 0.08em;
+  color: rgba(247, 243, 233, 0.72);
+  white-space: nowrap;
+}
+
+.pj__stack--bottom {
+  position: absolute;
+  left: 0;
+  bottom: calc(-1 * clamp(46px, 7vh, 76px));
+  color: rgba(247, 243, 233, 0.8);
+}
+
+.pj__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(6px, 0.7vw, 12px);
+  list-style: none;
+  margin: clamp(8px, 1.2vh, 16px) 0 0;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: clamp(9px, 0.72vw, 12.5px);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
+.pj__tags li {
+  padding: 3px 2px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.pj__tags li:hover {
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* ---------- Menute dashboard ---------- */
+
+.mn {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  font-family: var(--sans);
+  color: rgba(247, 243, 233, 0.86);
+  font-size: clamp(5px, 0.52vw, 8.5px);
+}
+
+.mn__side {
+  width: 20%;
+  padding: 6px 5px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mn__brand {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+  font-size: 1.35em;
+}
+
+.mn__dot {
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 50%;
+  background: #6ea8fe;
+}
+
+.mn__nav {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mn__nav li {
+  padding: 2.5px 4px;
+  border-radius: 3px;
+  color: rgba(247, 243, 233, 0.5);
+}
+
+.mn__nav li.is-active {
+  background: var(--panel-2);
+  color: rgba(247, 243, 233, 0.95);
+}
+
+.mn__logout {
+  margin-top: auto;
+  color: rgba(247, 243, 233, 0.32);
+  padding: 2px 4px;
+}
+
+.mn__main {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mn__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mn__search {
+  flex: 1;
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: rgba(247, 243, 233, 0.35);
+}
+
+.mn__avatar {
+  display: block;
+  width: 1.9em;
+  height: 1.9em;
+  border-radius: 50%;
+  background: linear-gradient(140deg, #6ea8fe, #b58bfd);
+}
+
+.mn__h {
+  margin: 0;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+.mn__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.mn__stat {
+  padding: 4px 5px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mn__stat-label {
+  color: rgba(247, 243, 233, 0.45);
+}
+
+.mn__stat-value {
+  font-size: 1.6em;
+  font-weight: 600;
+}
+
+.mn__stat-delta {
+  color: #5fbf82;
+  font-size: 0.85em;
+}
+
+.mn__panels {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 4px;
+  flex: 1;
+  min-height: 0;
+}
+
+.mn__panel {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 4px 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+}
+
+.mn__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(247, 243, 233, 0.7);
+}
+
+.mn__chip {
+  padding: 1px 4px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: rgba(247, 243, 233, 0.5);
+}
+
+.mn__chart {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.mn__chart path {
+  stroke: #6ea8fe;
+  vector-effect: non-scaling-stroke;
+}
+
+.mn__days {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(247, 243, 233, 0.35);
+}
+
+.mn__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5px;
+}
+
+.mn__list li {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(247, 243, 233, 0.62);
+}
+
+/* ---------- Ecomeasy ---------- */
+
+.ec {
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 2%;
+}
+
+.ec__browser {
+  width: 94%;
+  background: #f4f2ee;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(27, 27, 29, 0.22);
+  font-size: clamp(5px, 0.5vw, 8px);
+  font-family: var(--sans);
+  color: #2a2a2a;
+}
+
+.ec__chrome {
+  display: flex;
+  gap: 3px;
+  padding: 4px 6px;
+  background: #e2e0dc;
+}
+
+.ec__chrome span {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  background: #bdbbb6;
+}
+
+.ec__page {
+  padding: 6px 8px 0;
+}
+
+.ec__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-bottom: 6px;
+}
+
+.ec__logo {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.2em;
+}
+
+.ec__links {
+  display: flex;
+  gap: 6px;
+  color: #6a6a6a;
+}
+
+.ec__links i {
+  font-style: normal;
+}
+
+.ec__cta {
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--accent);
+  color: #fff;
+}
+
+.ec__hero {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.ec__copy h5 {
+  margin: 0;
+  font-size: 2.1em;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.ec__copy h5 em {
+  display: block;
+  font-style: normal;
+  color: var(--accent);
+}
+
+.ec__copy p {
+  margin: 4px 0 6px;
+  color: #6a6a6a;
+  line-height: 1.5;
+}
+
+.ec__btn {
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: var(--accent);
+  color: #fff;
+}
+
+.ec__shots {
+  position: relative;
+  height: 100%;
+  min-height: 8em;
+}
+
+.ec__panel {
+  position: absolute;
+  inset: 6% 0 0 8%;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(160deg, #2f3136, #1d1e21);
+  box-shadow: 0 10px 22px rgba(27, 27, 29, 0.25);
+}
+
+.ec__phone {
+  position: absolute;
+  left: -4%;
+  bottom: 0;
+  width: 32%;
+  height: 82%;
+  border-radius: 5px;
+  background: linear-gradient(160deg, #3a3c41, #232427);
+  border: 1.5px solid #4a4c51;
+  box-shadow: 0 10px 20px rgba(27, 27, 29, 0.3);
+}
+
+/* ---------- Code editor ---------- */
+
+.ed {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  font-family: var(--mono);
+  font-size: clamp(5px, 0.52vw, 8.5px);
+  color: rgba(247, 243, 233, 0.8);
+}
+
+.ed__rail {
+  width: 5%;
+  min-width: 16px;
+  border-right: 1px solid var(--line);
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.ed__rail span {
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 2px;
+  background: rgba(247, 243, 233, 0.18);
+}
+
+.ed__rail span.is-active {
+  background: rgba(247, 243, 233, 0.5);
+}
+
+.ed__tree {
+  width: 24%;
+  border-right: 1px solid var(--line);
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.ed__tree-head {
+  color: rgba(247, 243, 233, 0.45);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding-bottom: 3px;
+}
+
+.ed__tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+}
+
+.ed__node {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1.5px 3px;
+  padding-left: calc(3px + var(--d) * 6px);
+  border-radius: 2px;
+  color: rgba(247, 243, 233, 0.6);
+  white-space: nowrap;
+}
+
+.ed__node--folder {
+  color: rgba(247, 243, 233, 0.8);
+}
+
+.ed__node.is-active {
+  background: rgba(247, 243, 233, 0.1);
+  color: rgba(247, 243, 233, 0.95);
+}
+
+.ed__js {
+  font-style: normal;
+  color: #d9c26a;
+  font-size: 0.85em;
+}
+
+.ed__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ed__tabs {
+  border-bottom: 1px solid var(--line);
+  padding: 3px 5px;
+}
+
+.ed__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 2px 2px 0 0;
+  background: rgba(247, 243, 233, 0.08);
+}
+
+.ed__tab b {
+  font-weight: 400;
+  color: rgba(247, 243, 233, 0.4);
+}
+
+.ed__crumbs {
+  padding: 3px 7px;
+  color: rgba(247, 243, 233, 0.4);
+}
+
+.ed__crumbs i {
+  font-style: normal;
+  padding: 0 2px;
+}
+
+.ed__code {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 2px 7px 6px;
+  overflow: hidden;
+}
+
+.ed__code code {
+  display: grid;
+  grid-template-columns: 1.6em 1fr;
+  gap: 0 6px;
+  line-height: 1.85;
+}
+
+.ed__code .ln {
+  color: rgba(247, 243, 233, 0.25);
+  text-align: right;
+}
+
+.ed__code .l {
+  white-space: pre;
+  color: rgba(247, 243, 233, 0.82);
+}
+
+/* Syntax token colours. */
+.ed__code .k {
+  color: #c58cf2;
+}
+.ed__code .st {
+  color: #94d18b;
+}
+.ed__code .fn {
+  color: #7cb6f5;
+}
+.ed__code .nu {
+  color: #e0a06a;
+}
+.ed__code .op {
+  color: #e0e0e0;
+}
+
+/* ---------- Mobile phones ---------- */
+
+.ms {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(6px, 0.8vw, 14px);
+  height: 100%;
+  padding-bottom: 2%;
+}
+
+.ms__phone {
+  position: relative;
+  width: clamp(52px, 6.4vw, 108px);
+  aspect-ratio: 9 / 18;
+  border-radius: 9px;
+  background: #1f2023;
+  border: 1.5px solid #3a3c41;
+  box-shadow: 0 14px 28px rgba(27, 27, 29, 0.3);
+  padding: 8% 6% 5%;
+  display: flex;
+  flex-direction: column;
+  /* Middle phone stands taller, like the reference. */
+  transform: translateY(calc(var(--n) * -6% + 6%));
+}
+
+.ms__phone:nth-child(2) {
+  transform: translateY(-14%);
+}
+
+.ms__notch {
+  position: absolute;
+  top: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  height: 2.5%;
+  border-radius: 4px;
+  background: #3a3c41;
+}
+
+.ms__screen {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4%;
+  font-family: var(--sans);
+  font-size: clamp(3.4px, 0.34vw, 5.6px);
+  color: rgba(247, 243, 233, 0.82);
+  overflow: hidden;
+}
+
+.ms__title {
+  font-size: 1.7em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ms__search {
+  height: 7%;
+  border-radius: 3px;
+  background: rgba(247, 243, 233, 0.1);
+}
+
+.ms__row {
+  display: flex;
+  align-items: center;
+  gap: 5%;
+  padding: 4% 5%;
+  border-radius: 3px;
+  background: rgba(247, 243, 233, 0.07);
+}
+
+.ms__row-icon {
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 3px;
+  background: rgba(247, 243, 233, 0.2);
+  flex: none;
+}
+
+.ms__row-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ms__bar {
+  position: absolute;
+  bottom: 2.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 34%;
+  height: 1.6%;
+  border-radius: 3px;
+  background: rgba(247, 243, 233, 0.3);
+}
+
+/* ---------- Follow cursor ---------- */
+
+.pj__cursor {
+  --dot: 58px;
+
+  /* Default is the light section background, so the cursor is dark.
+     Flipped by .is-bg-dark when the pointer is over a dark card. */
+  --cur-bg: #1b1b1d;
+  --cur-fg: var(--cream);
+  --cur-label: #1b1b1d;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* Pulls the box back by half the dot, so the dot lands on the pointer and
+     the label trails to its right. */
+  margin: calc(var(--dot) / -2) 0 0 calc(var(--dot) / -2);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.pj__cursor.is-active {
+  opacity: 1;
+}
+
+.pj__cursor.is-bg-dark {
+  --cur-bg: var(--cream);
+  --cur-fg: #1b1b1d;
+  --cur-label: var(--cream);
+}
+
+.pj__cursor-dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--dot);
+  height: var(--dot);
+  flex: none;
+  border-radius: 50%;
+  background: var(--cur-bg);
+  box-shadow: 0 8px 22px rgba(27, 27, 29, 0.22);
+  transform: scale(0.6);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s ease;
+}
+
+.pj__cursor.is-active .pj__cursor-dot {
+  transform: scale(1);
+}
+
+/* Pressed — the dot dips under the click. */
+.pj__cursor.is-active.is-pressed .pj__cursor-dot {
+  transform: scale(0.84);
+  transition: transform 0.14s ease;
+}
+
+.pj__cursor-dot svg {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  fill: var(--cur-fg);
+  transition: fill 0.3s ease;
+}
+
+/* Ripple thrown off on click. */
+.pj__cursor-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--cur-bg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pj__cursor-ring.is-burst {
+  animation: pjRing 620ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pjRing {
+  0% {
+    transform: scale(0.72);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.pj__cursor-label {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--cur-label);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.3s ease;
+}
+
+.pj__cursor.is-active .pj__cursor-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Native pointer steps aside for the custom one. */
+@media (pointer: fine) {
+  .pj__grid {
+    cursor: none;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1000px) {
+  /* Sticky stacking needs viewport height to read; on short/narrow screens
+     it just traps the cards. Let them flow normally instead. */
+  .pj__card {
+    position: relative;
+    top: auto;
+    min-height: clamp(240px, 44vh, 380px);
+    transform: none;
+  }
+
+  .pj.is-revealed .pj__card:hover {
+    transform: none;
+  }
+
+  .pj__intro {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .pj__meta--left {
+    position: static;
+    transform: none;
+    max-width: none;
+    padding: 0 clamp(14px, 1.8vw, 30px) clamp(14px, 2vh, 24px);
+  }
+
+  .pj__card--mobile {
+    flex-direction: column-reverse;
+  }
+
+  .pj__stack--bottom {
+    position: static;
+    display: block;
+    margin-top: 8px;
+  }
+
+  .pj__cursor {
+    display: none;
+  }
+
+  .pj__grid {
+    cursor: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pj__card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .pj.is-revealed .pj__card:hover {
+    transform: none;
+  }
+
+  .pj__art {
+    transform: none;
+  }
+}

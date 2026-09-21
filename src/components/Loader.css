@@ -1,0 +1,197 @@
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+  overflow: hidden;
+  transition: opacity 0.55s ease;
+}
+
+.loader--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Matches the page-wide grain from body::after, which can't reach this far
+   up — it sits at z-index 80 and the loader is at 9999. */
+.loader::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image: radial-gradient(rgba(27, 27, 29, 0.055) 0.5px, transparent 0.5px),
+    radial-gradient(rgba(247, 243, 233, 0.05) 0.5px, transparent 0.5px);
+  background-size: 3px 3px, 7px 7px;
+  background-position: 0 0, 1px 2px;
+}
+
+.loader__mark {
+  display: inline-block;
+}
+
+.loader__signature {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: clamp(11px, 1.1vw, 15px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 1;
+  white-space: nowrap;
+  user-select: none;
+  animation: signatureIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.loader__signature--exit {
+  animation: signatureOut 0.3s ease forwards;
+}
+
+@keyframes signatureIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes signatureOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.loader__letter {
+  position: relative;
+  display: inline-block;
+  font-family: 'Amoria', 'Playfair Display', Georgia, serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(160px, 28vw, 300px);
+  line-height: 1;
+  color: var(--ink);
+  user-select: none;
+}
+
+/* The stem wipes up from the baseline. inset() clips from each edge, so
+   animating the top inset 100% → 0% grows the visible band upward from
+   the bottom. */
+.loader__glyph {
+  position: relative;
+  display: inline-block;
+  clip-path: inset(100% 0 0 0);
+  animation: glyphDraw 0.72s cubic-bezier(0.65, 0, 0.35, 1) 0.12s forwards;
+}
+
+@keyframes glyphDraw {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Both positioned from measurements of the actual glyph: the dot's
+   bounding box sits at ~9%–90% of the letter box's width and ~7%–23%
+   of its height. Left/width read against the box width, top/height
+   against the box height — matching how the real dot is proportioned. */
+.loader__dot-mask,
+.loader__dot {
+  position: absolute;
+  left: 8.9%;
+  top: 6.6%;
+  width: 81.1%;
+  height: 16.3%;
+}
+
+.loader__dot-mask {
+  background: var(--cream);
+}
+
+.loader__dot {
+  overflow: visible;
+  transform-origin: 50% 50%;
+  /* Drops in once the stem has finished drawing. Slight overshoot in the
+     curve so it settles rather than arriving flat. */
+  animation: dotLand 0.52s cubic-bezier(0.34, 1.42, 0.5, 1) 0.66s both;
+}
+
+/* Same ink as the stem it belongs to — it reads as one mark, not two. */
+.loader__dot path {
+  fill: var(--ink);
+}
+
+@keyframes dotLand {
+  from {
+    opacity: 0;
+    transform: translateY(-0.55em) scale(0.35) rotate(-120deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
+/* The growth itself is driven from the component, which is the only place
+   that knows how big this viewport needs it to get. This hands the property
+   over: the landing animation has to stop holding the transform, or it would
+   keep fighting for it. */
+.loader__dot--fly {
+  animation: none;
+}
+
+/* Guarantees full coverage once the sparkle has grown past the edges, so
+   nothing of the page shows through the shallow notches between its tips
+   before the fade begins. */
+.loader__flash {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  /* Follows the sparkle: it is the same shape filling the screen, so the
+     colour has to match or the fill jumps. */
+  background: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader--flash .loader__flash,
+.loader--exit .loader__flash {
+  opacity: 1;
+  /* Shorter than the flash beat itself, so it is actually up while it is
+     needed rather than still fading in as the loader starts to clear. */
+  transition: opacity 0.18s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader__glyph,
+  .loader__dot,
+  .loader__signature {
+    animation: none;
+    clip-path: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Nothing grows over the screen: the loader simply fades and the page is
+     there. .loader--exit already carries that fade. */
+  .loader__dot--fly {
+    animation: none;
+  }
+
+  .loader--flash .loader__flash,
+  .loader--exit .loader__flash {
+    opacity: 0;
+  }
+}

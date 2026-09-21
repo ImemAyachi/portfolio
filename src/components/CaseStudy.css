@@ -1,0 +1,269 @@
+.cs {
+  position: fixed;
+  inset: 0;
+  /* Above the nav (100) and cursors, below the loader (9999). */
+  z-index: 200;
+}
+
+.cs__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(27, 27, 29, 0.5);
+}
+
+/* The only element that gets clipped: a plain cream rectangle with nothing
+   inside it. Clipping the content panel instead meant re-rasterising a full
+   screen of text every frame, which is what made the transition stutter. */
+.cs__surface {
+  position: absolute;
+  inset: 0;
+  background: var(--cream);
+  clip-path: inset(0px 0px 0px 0px round 8px);
+}
+
+/* Sits above the surface and simply fades in once the expansion is under
+   way, so it never has to be clipped or resized. */
+.cs__panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+.cs__close {
+  position: absolute;
+  top: clamp(16px, 2.6vh, 34px);
+  right: clamp(16px, 2.6vw, 44px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(119, 119, 111, 0.35);
+  border-radius: 999px;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.cs__close:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+
+/* The panel's own scroller — the page behind is frozen while this is open. */
+.cs__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Mounted a beat after the expansion starts (see CaseStudy.jsx), so it
+   fades itself in rather than being animated from JS. */
+.cs__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(60px, 12vh, 130px) clamp(22px, 5vw, 90px)
+    clamp(50px, 10vh, 110px);
+  animation: csRise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes csRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Header ---------- */
+
+.cs__role {
+  display: block;
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.8vw, 13px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.cs__title {
+  margin: clamp(10px, 1.6vh, 20px) 0 0;
+  font-family: 'Anton', 'Archivo Black', Arial, sans-serif;
+  font-weight: 400;
+  font-size: clamp(46px, 9vw, 150px);
+  line-height: 0.86;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.cs__tagline {
+  max-width: 44ch;
+  margin: clamp(12px, 2vh, 22px) 0 0;
+  font-family: var(--mono);
+  font-size: clamp(13px, 1.05vw, 18px);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* ---------- Body ---------- */
+
+.cs__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.65fr);
+  gap: clamp(30px, 5vw, 90px);
+  margin-top: clamp(34px, 6vh, 76px);
+  padding-top: clamp(24px, 4vh, 46px);
+  border-top: 1px solid rgba(119, 119, 111, 0.24);
+}
+
+.cs__summary {
+  max-width: 58ch;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(14px, 1.15vw, 20px);
+  line-height: 1.85;
+  color: var(--ink);
+}
+
+.cs__block {
+  margin-top: clamp(28px, 5vh, 58px);
+  padding-top: clamp(18px, 3vh, 32px);
+  border-top: 1px solid rgba(119, 119, 111, 0.2);
+}
+
+/* The side column starts level with the summary, so no rule above it. */
+.cs__block--first {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.cs__label {
+  margin: 0 0 clamp(12px, 1.8vh, 20px);
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.8vw, 13px);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cs__body {
+  max-width: 62ch;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(12px, 0.98vw, 17px);
+  line-height: 1.9;
+  color: var(--ink);
+}
+
+.cs__list {
+  max-width: 62ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.8vh, 18px);
+  font-family: var(--mono);
+  font-size: clamp(12px, 0.98vw, 17px);
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+/* Rust sparkle in place of a bullet. */
+.cs__list li {
+  position: relative;
+  padding-left: 1.7em;
+}
+
+.cs__list li::before {
+  content: '✳';
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  color: var(--accent);
+  font-size: 0.85em;
+}
+
+/* ---------- Side column ---------- */
+
+.cs__side {
+  align-self: start;
+  position: sticky;
+  top: clamp(60px, 12vh, 130px);
+}
+
+.cs__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(8px, 1vw, 14px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.88vw, 15px);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.cs__links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(12px, 1.8vh, 20px);
+}
+
+.cs__link {
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: clamp(12px, 0.95vw, 16px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 860px) {
+  .cs__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(28px, 5vh, 48px);
+  }
+
+  .cs__side {
+    position: static;
+  }
+
+  .cs__block--first {
+    margin-top: clamp(28px, 5vh, 58px);
+    padding-top: clamp(18px, 3vh, 32px);
+    border-top: 1px solid rgba(119, 119, 111, 0.2);
+  }
+}
+
+/* The JS skips the clip animation entirely when motion is reduced. */
+@media (prefers-reduced-motion: reduce) {
+  .cs__surface {
+    clip-path: none;
+  }
+
+  .cs__panel,
+  .cs__inner {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}

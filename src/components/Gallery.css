@@ -1,0 +1,225 @@
+.gl {
+  --p: 0;
+
+  position: relative;
+  z-index: 3;
+  /* Extra height is the scroll budget the pinned panel spends moving
+     sideways — roughly one viewport per two plates. */
+  height: 340vh;
+  background: var(--cream);
+  box-shadow: 0 -34px 70px rgba(61, 61, 61, 0.12);
+}
+
+.gl__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.gl__track {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 3vw, 56px);
+  padding: 0 clamp(16px, 3vw, 48px);
+  will-change: transform;
+}
+
+/* ---------- Intro panel ---------- */
+
+.gl__intro {
+  flex: none;
+  width: clamp(260px, 30vw, 460px);
+  padding-right: clamp(10px, 2vw, 30px);
+}
+
+.gl__title {
+  margin: 0;
+  font-family: 'Anton', 'Archivo Black', Arial, sans-serif;
+  font-weight: 400;
+  font-size: clamp(44px, 6.4vw, 116px);
+  line-height: 0.86;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+
+.gl__lede {
+  max-width: 26ch;
+  margin: clamp(12px, 2vh, 22px) 0 0;
+  font-family: var(--mono);
+  font-size: clamp(12px, 0.92vw, 15px);
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+/* Points the way the section actually moves. */
+.gl__arrow {
+  position: relative;
+  display: block;
+  width: clamp(48px, 7vw, 110px);
+  height: 1px;
+  margin-top: clamp(18px, 3vh, 34px);
+  background: rgba(119, 119, 111, 0.4);
+}
+
+.gl__arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid var(--accent);
+}
+
+/* ---------- Plates ---------- */
+
+.gl__plate {
+  flex: none;
+  width: clamp(230px, 26vw, 400px);
+  margin: 0;
+}
+
+/* Every other plate rides lower, so the reel isn't a flat row. */
+.gl__plate:nth-child(even) {
+  transform: translateY(clamp(16px, 4vh, 54px));
+}
+
+.gl__frame {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 5;
+  border-radius: 4px;
+  background: linear-gradient(150deg, #c4c2bd, #a9a7a2);
+  overflow: hidden;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gl__plate:hover .gl__frame {
+  transform: scale(1.025);
+}
+
+.gl__mark {
+  width: 22%;
+  fill: rgba(247, 243, 233, 0.5);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), fill 0.4s ease;
+}
+
+.gl__plate:hover .gl__mark {
+  transform: rotate(45deg) scale(1.1);
+  fill: var(--cream);
+}
+
+.gl__caption {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px clamp(10px, 1.2vw, 18px);
+  margin-top: clamp(10px, 1.6vh, 18px);
+  font-family: var(--mono);
+}
+
+.gl__n {
+  grid-row: span 2;
+  font-size: clamp(11px, 0.85vw, 14px);
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+
+.gl__plate-title {
+  font-size: clamp(12px, 0.95vw, 16px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.gl__plate-text {
+  font-size: clamp(11px, 0.82vw, 13.5px);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.gl__end {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: clamp(160px, 18vw, 280px);
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.85vw, 14px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Progress ---------- */
+
+.gl__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: rgba(119, 119, 111, 0.14);
+}
+
+.gl__progress-bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left center;
+  transform: scaleX(var(--p));
+}
+
+/* ---------- Responsive ----------
+   Below the breakpoint the pin is dropped and the track becomes a normal
+   swipeable scroller — hijacking scroll on touch is worse than useless. */
+
+@media (max-width: 900px) {
+  .gl {
+    height: auto;
+    padding: clamp(60px, 10vh, 110px) 0;
+  }
+
+  .gl__sticky {
+    position: static;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .gl__track {
+    transform: none !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
+  }
+
+  .gl__plate {
+    scroll-snap-align: center;
+    width: 72vw;
+  }
+
+  .gl__plate:nth-child(even) {
+    transform: none;
+  }
+
+  .gl__intro {
+    width: 78vw;
+  }
+
+  .gl__progress {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gl__frame,
+  .gl__mark {
+    transition: none;
+  }
+}
